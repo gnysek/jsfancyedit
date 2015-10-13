@@ -12,6 +12,7 @@
 
 	.editors {
 		border: 2px solid #F5f5f5;
+		border-bottom-color: gray;
 		margin: 5px 0;
 	}
 
@@ -61,7 +62,7 @@
 		position: absolute;
 		left: 0px;
 		top: 0px;
-		background: transparent url('video.png') no-repeat center center;
+		background: transparent url('youtube.png') no-repeat center center;
 	}
 
 	.video-url {
@@ -75,8 +76,9 @@
 	}
 
 	.nextpage > div {
-		border-top: 2px solid black;
-		width: 40%;
+		border-bottom: 2px solid #000;
+		width: 48%;
+		height: 5px;
 	}
 
 	.nextpage .np1 {
@@ -100,6 +102,7 @@
 <script>
 	$().ready(function () {
 		$('#editor').fancyedit();
+		$('#ftest').fancyedit({buttons: 'text,video,embed'});
 	});
 </script>
 
