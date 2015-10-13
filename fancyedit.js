@@ -1,21 +1,32 @@
 (function ($) {
 
-	var editors = [];
-	var buttons = [];
-	var id = 1;
+	$.fn.ucfirst = function (str) {
+		//  discuss at: http://phpjs.org/functions/ucfirst/
+		// original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
+		// bugfixed by: Onno Marsman
+		// improved by: Brett Zamir (http://brett-zamir.me)
+		//   example 1: ucfirst('kevin van zonneveld');
+		//   returns 1: 'Kevin van zonneveld'
+
+		str += '';
+		var f = str.charAt(0)
+			.toUpperCase();
+		return f + str.substr(1);
+	}
 
 	$.fn.fancyedit = function (options) {
 
-		var settings = $.extend($.fn.fancyedit.defaults, options);
+		var id = 1;
+		var settings = $.extend({}, $.fn.fancyedit.defaults, options);
+		var editors = $('<div/>');
 		settings.container = this;
 
-
 		var addEditor = function (type) {
-			id++;
 
+			id++;
 			var container = $('<div/>', {class: 'editors', id: '__editor_' + id, 'data-type': type});
 
-			switch (type) {
+			switch (type + '') {
 				case 'text':
 					container.append('<textarea/>');
 					break;
@@ -47,7 +58,7 @@
 
 			container.append(footer.join("\r\n"));
 
-			settings.container.find('.fancy-buttons').before(container);
+			editors.append(container);
 
 			pagesEnumerate();
 		};
@@ -60,36 +71,13 @@
 
 		var toolbar = $('<div/>', {class: 'fancy-buttons'});
 
-		if (settings.text) {
-			toolbar.append($('<a/>', {text: '+Text'}).click(function () {
-				addEditor('text');
+		$(settings.buttons.split(',')).each(function () {
+			var txt = this;
+			toolbar.append($('<a/>', {text: '+' + $.fn.ucfirst(this) }).click(function () {
+				addEditor(txt);
 			}));
-		}
-		if (settings.video) {
-			toolbar.append($('<a/>', {text: '+video'}).click(function () {
-				addEditor('video');
-			}));
-		}
-		if (settings.image) {
-			toolbar.append($('<a/>', {text: '+Image'}).click(function () {
-				addEditor('image');
-			}));
-		}
-		if (settings.link) {
-			toolbar.append($('<a/>', {text: '+Link'}).click(function () {
-				addEditor('link');
-			}));
-		}
-		if (settings.twitter) {
-			toolbar.append($('<a/>', {text: '+Twitter'}).click(function () {
-				addEditor('twitter');
-			}));
-		}
-		if (settings.separator) {
-			toolbar.append($('<a/>', {text: '+Separator'}).click(function () {
-				addEditor('separator');
-			}));
-		}
+
+		});
 
 		toolbar.find('button').after(' ');
 
@@ -117,7 +105,7 @@
 				$(this).parents('.editors').find('[data-action="video-img"]').html(
 					$('<a/>', {href: url, target: '_blank'}).css({backgroundImage: 'url(\'' + ytUrl + '\')'})//.append($('<img/>', {src: ytUrl}))
 				);
-				$(this).parents('.editors').find('[data-action="video-url"]').text(ytUrl + '<br/>' + url);
+				$(this).parents('.editors').find('[data-action="video-url"]').html(ytUrl + '<br/>' + url);
 			}
 		});
 
@@ -128,24 +116,19 @@
 			$(this).parents('.editors').find('[data-action="video-url"]').text('');
 		});
 
+		settings.container.append(editors);
 		settings.container.append(toolbar);
 
 		return this;
 	};
 
 	$.fn.fancyedit.defaults = {
-		text: true,
-		video: true,
-		twitter: false,
-		separator: true,
-		link: true,
-		image: true,
-
+		buttons: 'text,video,image,link,twitter,separator',
 		container: this,
 	};
 
 	$.fn.fancyedit.videoParse = function (url) {
-		var id = url.replace(/(.*watch\?v=)([a-zA-Z0-9_-])(.*?)/, '$2');
+		var id = url.replace(/(.*watch\?v=|.*youtu\.be\/)([a-zA-Z0-9_-]+)(.*)/, '$2');
 		if (id != url && id.length > 0) {
 			return 'http://img.youtube.com/vi/' + id + '/sddefault.jpg';
 		}
